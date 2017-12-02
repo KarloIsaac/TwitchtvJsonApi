@@ -19,7 +19,6 @@ function requestChannelInformation(channeId) {
 
 
 function processChannelInformation(userJsonData) {
-console.log(userJsonData);
     var stream = userJsonData.stream;
     var channelId = retrieveChannelId(userJsonData._links.channel);
     var channel = stream === null ? null : stream.channel;
@@ -28,7 +27,7 @@ console.log(userJsonData);
     var channelPanel = document.createElement("div");
     channelPanel.className  = "channel-panel";
     channelPanel.append(channelIcon);
-    channelPanel.append(createInformationPanelElement(channel, channelId));
+    channelPanel.append(createInformationPanelElement(stream, channelId));
 
     var channelsPanel = document.getElementById("channels-holder");
     channelsPanel.append(channelPanel);
@@ -55,10 +54,49 @@ function createChannelIconElement(channel) {
 }
 
 
-function createInformationPanelElement(channel, channelId) {
+function createInformationPanelElement(stream, channelId) {
+    var isChannelOffline = stream === null;
+    var informationPanel = document.createElement("div");
+    informationPanel.append(buildChannelIdElement(channelId));
+    informationPanel.append(buildStatusElement(isChannelOffline));
+    if (stream !== null) {
+        var channel = stream.channel;
+        informationPanel.append(buildInforationElement("Game: ", channel.game));
+        informationPanel.append(buildInforationElement("Status: ", channel.status));
+        informationPanel.append(buildInforationElement("Viewers: ", stream.viewers));
+    }
+    return informationPanel;
+}
+
+
+function buildChannelIdElement(channelId) {
+    var goToImage = document.createElement("img");
+    goToImage.src = "";
+    goToImage.alt = "go to channel"
+
+    var channelLink = document.createElement("a");
+    channelLink.href = "https://www.twitch.tv/" + channelId;
+    channelLink.title = "go to channel";
+    channelLink.append(goToImage);
+    channelLink.target = "_blank";
+
     var channelName = document.createElement("h2");
     channelName.innerText = channelId;
-    var informationPanel = document.createElement("div");
-    informationPanel.append(channelName);
-    return informationPanel;
+    channelName.append(channelLink);
+    return channelName;
+}
+
+
+function buildStatusElement(isChannelOffline) {
+    var statusElement = document.createElement("span");
+    statusElement.innerText = isChannelOffline ? "Offline" : "Online";
+    statusElement.className = isChannelOffline ? "offline-flag" : "online-flag";
+    return statusElement;
+}
+
+
+function buildInforationElement(category, information) {
+    var dataLine = document.createElement("p");
+    dataLine.innerText = category + information;
+    return dataLine;
 }
