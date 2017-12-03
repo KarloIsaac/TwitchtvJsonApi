@@ -57,6 +57,7 @@ function createChannelIconElement(channel) {
 function createInformationPanelElement(stream, channelId) {
     var isChannelOffline = stream === null;
     var informationPanel = document.createElement("div");
+    informationPanel.className = "information-panel";
     informationPanel.append(buildChannelIdElement(channelId));
     informationPanel.append(buildStatusElement(isChannelOffline));
     if (stream !== null) {
@@ -71,7 +72,7 @@ function createInformationPanelElement(stream, channelId) {
 
 function buildChannelIdElement(channelId) {
     var goToImage = document.createElement("img");
-    goToImage.src = "";
+    goToImage.src = "https://cdn3.iconfinder.com/data/icons/snowish/24x24/actions/go-jump.png";
     goToImage.alt = "go to channel"
 
     var channelLink = document.createElement("a");
@@ -88,7 +89,7 @@ function buildChannelIdElement(channelId) {
 
 
 function buildStatusElement(isChannelOffline) {
-    var statusElement = document.createElement("span");
+    var statusElement = document.createElement("strong");
     statusElement.innerText = isChannelOffline ? "Offline" : "Online";
     statusElement.className = isChannelOffline ? "offline-flag" : "online-flag";
     return statusElement;
@@ -96,7 +97,11 @@ function buildStatusElement(isChannelOffline) {
 
 
 function buildInforationElement(category, information) {
+    var categoryName = document.createElement("span");
+    categoryName.className = "category-name";
+    categoryName.innerText = category;
     var dataLine = document.createElement("p");
-    dataLine.innerText = category + information;
+    dataLine.append(categoryName);
+    dataLine.append(information);
     return dataLine;
 }
