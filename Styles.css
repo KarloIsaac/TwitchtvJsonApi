@@ -4,7 +4,7 @@ html {
 }
 
 body {
-    max-width: 980px;
+    width: 980px;
 }
 
 #channels-holder {

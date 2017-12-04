@@ -1,71 +1,43 @@
-function retrieveChannelsResponse() {
+function displayChannelsInformation() {
     var channelIdArray = ["freecodecamp", "ESL_SC2", "OgamingSC2", "cretetion", "storbeck", "habathcx", "RobotCaleb",
             "noobs2ninjas"];
+    var channelPanelsHolder = document.getElementById("channels-holder");
     channelIdArray.forEach(function(channeId, index, array) {
+        channelPanelsHolder.append(buildChannelPanelElement(channeId));
         requestChannelInformation(channeId);
     });
-
 }
 
 
-function requestChannelInformation(channeId) {
-    var body = document.getElementsByTagName("body")[0];
-    var scriptElement = document.createElement("script");
-    scriptElement.src = "https://wind-bow.glitch.me/twitch-api/streams/" + channeId +
-            "?callback=processChannelInformation";
-    body.append(scriptElement);
-    body.removeChild(scriptElement);
-}
-
-
-function processChannelInformation(userJsonData) {
-    var stream = userJsonData.stream;
-    var channelId = retrieveChannelId(userJsonData._links.channel);
-    var channel = stream === null ? null : stream.channel;
-    var channelIcon = createChannelIconElement(channel);
-
+function buildChannelPanelElement(channelId) {
+    var channelIconElement = createChannelIconElement();
     var channelPanel = document.createElement("div");
+    channelPanel.id = channelId;
     channelPanel.className  = "channel-panel";
-    channelPanel.append(channelIcon);
-    channelPanel.append(createInformationPanelElement(stream, channelId));
-
-    var channelsPanel = document.getElementById("channels-holder");
-    channelsPanel.append(channelPanel);
+    channelPanel.append(channelIconElement);
+    channelPanel.append(createInformationPanelElement(channelId));
+    return channelPanel;
 }
 
 
-function retrieveChannelId(channelLink) {
-    var pattern = /[^\/]*$/;
-    var match = pattern.exec(channelLink);
-    var channelId = match[0];
-    return channelId;
-}
-
-
-function createChannelIconElement(channel) {
-    var imageAddress = channel === null
-            ? "https://cdn3.iconfinder.com/data/icons/cat-force/256/cat_sleep.png"
-            : channel.logo;
+function createChannelIconElement() {
     var userIcon = document.createElement("img");
-    userIcon.src = imageAddress;
+    userIcon.src = "https://cdn3.iconfinder.com/data/icons/cat-force/256/cat_sleep.png";
     userIcon.height = 150;
     userIcon.width = 150;
     return userIcon;
 }
 
 
-function createInformationPanelElement(stream, channelId) {
-    var isChannelOffline = stream === null;
+function createInformationPanelElement(channelId) {
     var informationPanel = document.createElement("div");
+    var statusElement = document.createElement("strong");
+    statusElement.innerText = "Offline";
+    statusElement.className = "offline-flag";
+
     informationPanel.className = "information-panel";
     informationPanel.append(buildChannelIdElement(channelId));
-    informationPanel.append(buildStatusElement(isChannelOffline));
-    if (stream !== null) {
-        var channel = stream.channel;
-        informationPanel.append(buildInforationElement("Game: ", channel.game));
-        informationPanel.append(buildInforationElement("Status: ", channel.status));
-        informationPanel.append(buildInforationElement("Viewers: ", stream.viewers));
-    }
+    informationPanel.append(statusElement);
     return informationPanel;
 }
 
@@ -88,11 +60,56 @@ function buildChannelIdElement(channelId) {
 }
 
 
-function buildStatusElement(isChannelOffline) {
-    var statusElement = document.createElement("strong");
-    statusElement.innerText = isChannelOffline ? "Offline" : "Online";
-    statusElement.className = isChannelOffline ? "offline-flag" : "online-flag";
-    return statusElement;
+function requestChannelInformation(channeId) {
+    var body = document.getElementsByTagName("body")[0];
+    var scriptElement = document.createElement("script");
+    scriptElement.src = "https://wind-bow.glitch.me/twitch-api/streams/" + channeId +
+            "?callback=processChannelInformation";
+    body.append(scriptElement);
+    body.removeChild(scriptElement);
+}
+
+
+function processChannelInformation(userJsonData) {
+    var stream = userJsonData.stream;
+    if(stream !== null) {
+        var channelId = retrieveChannelId(userJsonData._links.channel);
+        var channel = stream.channel;
+        fillOnlineStatusInformation(channelId);
+        setOnlineChannelIcon(channelId, channel);
+        fillOnlineChannelInformation(channelId, stream);
+    }
+}
+
+
+function retrieveChannelId(channelLink) {
+    var pattern = /[^\/]*$/;
+    var match = pattern.exec(channelLink);
+    var channelId = match[0];
+    return channelId;
+}
+
+
+function fillOnlineStatusInformation(channelId) {
+    var statusElement = document.querySelector("#" + channelId + " strong");
+    statusElement.innerText = "Online";
+    statusElement.className = "online-flag";
+}
+
+
+function setOnlineChannelIcon(channelId, channel) {
+    var imageAddress = channel.logo;
+    var userIconElement = document.querySelector("#" + channelId + " img");
+    userIconElement.src = imageAddress;
+}
+
+
+function fillOnlineChannelInformation(channelId, stream) {
+    var informationPanel = document.querySelector("#" + channelId + " .information-panel");
+    var channel = stream.channel;
+    informationPanel.append(buildInforationElement("Game: ", channel.game));
+    informationPanel.append(buildInforationElement("Status: ", channel.status));
+    informationPanel.append(buildInforationElement("Viewers: ", stream.viewers));
 }
 
 
